@@ -1,0 +1,121 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The supplied Micro Might logo is used without changing the established UI system",
+      "name": "logo-header-footer-display",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Header and footer brand-logo-image elements render src containing ie8zyhiz_LOGO (supplied asset) at 390px viewport; no horizontal scroll detected (scrollWidth<=clientWidth); mobile nav to Contact worked."
+    },
+    {
+      "criterion": "The supplied PhonePe QR is the active public payment QR",
+      "name": "payment-qr-phonepe-details",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Payment page payment-qr-label contains 'PhonePe', payment-qr-image src contains zncy8do5_image (supplied QR), payment-payee-name shows 'Rishi Vardhan G'."
+    },
+    {
+      "criterion": "Payment page offers QR payment, contact help, and Cash on Delivery",
+      "name": "payment-cod-and-gmail-contact",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "cod-payment-card text includes 'additional ₹30', 'free within 5 km', '₹9 per km'; cod-whatsapp-button href is a prefilled wa.me/919482428467 COD message; payment-email-link and footer-email/contact-email-address all resolve to mailto:micromights@gmail.com; payment-help-whatsapp-button links to WhatsApp."
+    },
+    {
+      "criterion": "Updated delivery pricing is clear and consistent",
+      "name": "delivery-pricing-consistency",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Home hero-stat-delivery shows '5 km'; site footer ticker text 'Free delivery within 5 km · ₹9/km beyond 5 km across Bengaluru' present; Contact contact-copy states 'free within 5 km' and '₹9 per km beyond 5 km across Bengaluru' -- existing local-delivery message retained alongside updated pricing."
+    },
+    {
+      "criterion": "Gmail is available on customer-facing contact surfaces",
+      "name": "payment-cod-and-gmail-contact",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Same check asserts mailto:micromights@gmail.com on Payment help card, Contact page, and footer."
+    },
+    {
+      "criterion": "Existing G.Y.O.C. and admin QR flows remain functional",
+      "name": "gyoc-custom-variety-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: page-intro-description matches /you do not physically grow the crop/i (case-insensitive) plus journey steps and custom-variety CTAs rendered correctly."
+    },
+    {
+      "criterion": "Existing G.Y.O.C. and admin QR flows remain functional (admin replace + restore)",
+      "name": "admin-replaces-payment-qr",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: demo admin login, fixture QR upload+save succeeded, public Payment page displayed it, and the check's final request restored the supplied zncy8do5_image.png QR via PUT /api/payment-qr."
+    },
+    {
+      "criterion": "Existing G.Y.O.C. and admin QR flows remain functional (backend restore safety net)",
+      "name": "test_tscheck_payment_qr_restore.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "HTTP test: PUT /api/payment-qr with demo creds set a fixture QR (200), then PUT restored the supplied zncy8do5_image.png QR (200), and GET /api/payment-qr confirmed the supplied QR persisted."
+    },
+    {
+      "criterion": "Home clearly presents Micro Might, taglines, Bengaluru positioning, WhatsApp CTA, responsive navigation (regression)",
+      "name": "home-brand-navigation",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: hero title/tagline/eyebrow, WhatsApp CTA href, and mobile nav to Our Microgreens all passed."
+    },
+    {
+      "criterion": "Our Microgreens catalog pricing (regression)",
+      "name": "microgreens-catalog-pricing",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: catalog names, pricing plans, and Signature Mix regular-only pricing rendered correctly."
+    },
+    {
+      "criterion": "Product-specific WhatsApp ordering (regression)",
+      "name": "product-whatsapp-order-options",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: weight/plan selection updated pricing and WhatsApp href."
+    },
+    {
+      "criterion": "Supporting pages content (regression)",
+      "name": "supporting-pages-content",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: Ways to Enjoy, About, Contact details all rendered as expected."
+    },
+    {
+      "criterion": "Public Payment page manual proof flow (regression)",
+      "name": "payment-manual-proof-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: payment steps, manual verification instruction, QR surface, and WhatsApp proof CTA rendered."
+    },
+    {
+      "criterion": "Mobile-first layout without horizontal overflow (regression)",
+      "name": "mobile-layout-no-overflow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran persisted check: key pages and mobile menu visible without horizontal overflow at 390px."
+    },
+    {
+      "criterion": "Public Payment page API returns QR state (regression, backend)",
+      "name": "test_tscheck_public_payment.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /api/payment-qr returned 200 with qr_data_url field."
+    },
+    {
+      "criterion": "Admin QR API authenticates and replaces public QR (regression, backend)",
+      "name": "test_tscheck_admin_payment_qr.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "Invalid admin credentials returned 401; valid update returned 200; subsequent GET returned saved data URL."
+    }
+  ]
+}

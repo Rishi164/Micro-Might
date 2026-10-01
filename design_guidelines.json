@@ -1,0 +1,148 @@
+{
+  "theme": "light",
+  "typography": {
+    "headings": {
+      "font_family": "Cormorant Garamond",
+      "font_weights": ["400", "500", "600", "700"],
+      "usage": "Use for all H1, H2, H3 elements. Ensure tight letter spacing (tracking-tight) for large sizes. Represents premium, elegant farm-to-table brand.",
+      "styles": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-forest-green-900",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-snug text-forest-green-900",
+        "h3": "text-xl sm:text-2xl tracking-normal text-forest-green-800"
+      }
+    },
+    "body": {
+      "font_family": "Manrope",
+      "font_weights": ["300", "400", "500", "600"],
+      "usage": "Clean, highly readable sans-serif for body text, UI elements, and product descriptions.",
+      "styles": {
+        "large": "text-lg leading-relaxed text-charcoal-700",
+        "default": "text-base leading-relaxed text-charcoal-800",
+        "small": "text-sm text-charcoal-600"
+      }
+    },
+    "labels": {
+      "font_family": "Manrope",
+      "styles": "uppercase text-xs tracking-[0.2em] font-bold text-lime-green-700"
+    }
+  },
+  "colors": {
+    "background": {
+      "primary": "#FAF9F6",
+      "secondary": "#F0EFEB",
+      "surface": "#FFFFFF",
+      "dark_section": "#143621"
+    },
+    "brand": {
+      "deep_forest_green": "#143621",
+      "dark_green": "#2C4C3B",
+      "fresh_green": "#4A7C59",
+      "lime_green": "#8DB600"
+    },
+    "text": {
+      "primary": "#1A1A1A",
+      "secondary": "#4A4A4A",
+      "on_dark": "#FAF9F6",
+      "accent": "#4A7C59"
+    },
+    "border": {
+      "light": "#E5E3DB",
+      "medium": "#D1CFC7",
+      "dark": "#2C4C3B"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "soft": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "medium": "shadow-[0_20px_40px_rgb(0,0,0,0.06)]",
+      "card_hover": "hover:shadow-[0_20px_50px_rgb(20,54,33,0.08)]"
+    },
+    "borders": {
+      "radius": "rounded-2xl",
+      "radius_small": "rounded-lg",
+      "radius_large": "rounded-3xl",
+      "style": "border border-border-light hover:border-fresh-green/30 transition-colors"
+    },
+    "textures": {
+      "noise": "Add a very subtle SVG noise overlay or a 1% opacity grain pattern to break 'digital flatness'."
+    }
+  },
+  "layouts_and_grids": {
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 lg:gap-12",
+    "product_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8",
+    "spacing": "Use p-6 or p-8 inside cards. Section padding should be py-16 md:py-24 lg:py-32.",
+    "alignment": "Prioritize optical alignment. Left-align text for readability, especially for product descriptions. Asymmetric layouts are encouraged for storytelling sections."
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-deep_forest_green text-white hover:bg-dark_green px-8 py-3 rounded-full transition-all duration-300 transform hover:-translate-y-1 shadow-soft",
+      "whatsapp": "bg-[#25D366] text-white hover:bg-[#1DA851] px-8 py-3 rounded-full flex items-center gap-2 font-medium transition-all shadow-soft",
+      "outline": "border-2 border-deep_forest_green text-deep_forest_green hover:bg-deep_forest_green hover:text-white px-8 py-3 rounded-full transition-all"
+    },
+    "cards": {
+      "product_card": "bg-surface rounded-2xl overflow-hidden border border-border-light shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card_hover flex flex-col h-full",
+      "feature_card": "bg-secondary/50 rounded-2xl p-8 border border-border-light/50"
+    },
+    "navigation": {
+      "header": "fixed top-0 w-full z-50 bg-background-primary/80 backdrop-blur-xl border-b border-border-light transition-all",
+      "footer": "bg-deep_forest_green text-white py-16 md:py-24"
+    }
+  },
+  "motion": {
+    "page_transitions": "Subtle fade and slide up.",
+    "hover_states": "Buttons and cards should lift slightly (-translate-y-1) and cast a softer, longer shadow.",
+    "scroll_animations": "Use Framer Motion to reveal sections on scroll. Stagger children elements (like product cards) by 0.1s.",
+    "micro_interactions": "Smooth 300ms transitions on colors and transforms. Ease-out-expo timing functions."
+  },
+  "accessibility": {
+    "contrast": "Ensure text against background meets at least WCAG AA standards (4.5:1).",
+    "focus": "focus:outline-none focus-visible:ring-2 focus-visible:ring-lime_green focus-visible:ring-offset-2 focus-visible:ring-offset-background-primary",
+    "aria": "Use descriptive aria-labels for icon buttons and links.",
+    "testing": "All interactive elements must have data-testid attributes (e.g., data-testid='whatsapp-order-button')."
+  },
+  "media": {
+    "images": "Use realistic, high-quality photography. No generic vector illustrations. Images should be slightly desaturated or color-graded to match the premium, earthy tone. Max height for mobile hero images: 70vh.",
+    "image_urls": {
+      "hero": {
+        "url": "https://images.pexels.com/photos/36488389/pexels-photo-36488389.jpeg",
+        "description": "Vibrant green microgreens thriving in natural sunlight"
+      },
+      "about_story": {
+        "url": "https://images.unsplash.com/photo-1492496913980-501348b61469",
+        "description": "bokeh photography of person carrying soil (farmer hands)"
+      },
+      "gyoc_process": {
+        "url": "https://images.pexels.com/photos/7728882/pexels-photo-7728882.jpeg",
+        "description": "Detailed shot of seedlings growing in trays"
+      },
+      "ways_to_enjoy_salad": {
+        "url": "https://images.pexels.com/photos/29843060/pexels-photo-29843060.jpeg",
+        "description": "Colorful vegetable salad bowl"
+      },
+      "product_general_1": {
+        "url": "https://images.pexels.com/photos/3296644/pexels-photo-3296644.jpeg",
+        "description": "Top-down view of thriving green microgreens"
+      },
+      "product_general_2": {
+        "url": "https://images.unsplash.com/photo-1647613233075-e0d5546b0f22",
+        "description": "pile of green sprouts"
+      },
+      "payment_qr_placeholder": {
+        "url": "https://images.unsplash.com/photo-1647613233075-e0d5546b0f22",
+        "description": "Fallback image for QR code before admin upload (Mainly use a generic placeholder like 'Generate Payment QR' text over a solid bg if needed, or allow admin to upload directly)"
+      }
+    }
+  },
+  "iconography": {
+    "library": "lucide-react",
+    "style": "Minimalist, stroke-based, consistent line weight (1.5px or 2px). Earthy green colors."
+  },
+  "instructions_to_main_agent": {
+    "page_structure": "Build a React-Router driven multipage site or a unified scrollable site with clear routing (Home, Our Microgreens, G.Y.O.C, Ways to Enjoy, About, Contact, Payment, Admin). Update user requirement says 'multipage website' - ensure robust routing.",
+    "product_data": "Hardcode the exactly 14 requested varieties with their specific exact names and prices (Regular & GYOC), plus Signature Mix (Regular only).",
+    "whatsapp_integration": "CTAs on product cards should link to WhatsApp (https://wa.me/919482428467) with a pre-filled message (e.g., '?text=Hello Micro Might! I would like to order [Product Name] - [Weight].').",
+    "admin_dashboard": "Create a simple authenticated demo login route (/admin). Inside, a minimal dashboard for replacing the 'Payment QR'. No complex backend needed if it's purely a frontend mockup/demo (use localStorage for persisting the uploaded QR image data URL across reloads in demo mode).",
+    "styling": "Rely heavily on Tailwind for layouts. Avoid using generic Shadcn cards for the main marketing content if they look too 'SaaS-like' - customize them heavily with padding, rounded corners, and soft shadows to feel like a premium farm-to-table brand.",
+    "universal_guidelines": "Create depth through layered design elements with z-index hierarchy. Ensure spacing is generous (use 2-3x more spacing). NEVER use AI emoji characters. Avoid centered generic layouts; tension creates interest. DO NOT apply universal transition (transition: all)."
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "passed": 10,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [
+    {
+      "type": "test_error",
+      "criterion": "G.Y.O.C. page explains Grow Your Own Crop accurately and offers a custom variety request",
+      "detail": "Existing browser check gyoc-custom-variety-flow still asserts the lowercase substring 'you do not physically grow the crop' with a case-sensitive matcher. The rendered copy begins 'You do not physically grow the crop', and the required sentence, four journey steps, and custom request CTAs are present. Update the check assertion to perform the acceptance-required case-insensitive match before the next retest."
+    }
+  ],
+  "retest_needed": true,
+  "checks": [
+    {
+      "criterion": "Home clearly presents Micro Might, the exact taglines, local Bengaluru positioning, primary WhatsApp ordering CTA, and responsive navigation",
+      "name": "home-brand-navigation",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; home hero/taglines, Bengaluru positioning, WhatsApp CTA, and mobile navigation rendered."
+    },
+    {
+      "criterion": "Our Microgreens page presents exactly the requested 14 varieties with correct names, variety labels, Regular prices, G.Y.O.C. prices, and Signature Mix regular-only pricing",
+      "name": "microgreens-catalog-pricing",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; catalog names, pricing plans, and Signature Mix regular-only pricing rendered."
+    },
+    {
+      "criterion": "Product cards support product-specific WhatsApp ordering with weight selection and pricing plan selection",
+      "name": "product-whatsapp-order-options",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; weight/plan changes updated pricing and product-specific WhatsApp href."
+    },
+    {
+      "criterion": "G.Y.O.C. page explains Grow Your Own Crop accurately and offers a custom variety request",
+      "name": "gyoc-custom-variety-flow",
+      "lane": "browser",
+      "status": "test_error",
+      "evidence": "Check failed twice on case-sensitive lowercase assertion; rendered intro text is 'Choose the microgreen variety you want, and we’ll grow it specially for you. You do not physically grow the crop ...'. Failure screenshot captured at /root/.emergent/automation_output/20260924_080339_562/gyoc-custom-variety-flow-failure.png."
+    },
+    {
+      "criterion": "Ways to Enjoy, About, Why Micro Might, and Contact content is present and accurate",
+      "name": "supporting-pages-content",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; supporting pages and contact details rendered."
+    },
+    {
+      "criterion": "Public Payment page provides a clear QR payment flow and WhatsApp payment-proof CTA",
+      "name": "payment-manual-proof-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; payment steps, manual verification instruction, QR surface, and WhatsApp proof CTA rendered."
+    },
+    {
+      "criterion": "Demo admin dashboard authenticates and allows replacing the public payment QR",
+      "name": "admin-replaces-payment-qr",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; demo admin login, QR replacement, save, and public payment display worked."
+    },
+    {
+      "criterion": "Mobile-first layout remains usable without horizontal overflow",
+      "name": "mobile-layout-no-overflow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Persisted mobile browser check passed; key pages and mobile menu were visible without horizontal overflow."
+    },
+    {
+      "criterion": "Public Payment page API returns QR state",
+      "name": "test_tscheck_public_payment.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "HTTP test suite assertion: GET /api/payment-qr returned 200 with qr_data_url."
+    },
+    {
+      "criterion": "Admin QR API authenticates and replaces public QR",
+      "name": "test_tscheck_admin_payment_qr.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "HTTP test suite assertions: invalid admin credentials returned 401; valid update returned 200; subsequent GET returned saved data URL."
+    },
+    {
+      "criterion": "Public payment QR endpoint remains available for payment UI",
+      "name": "test_tscheck_payment_qr.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "HTTP pytest assertion completed successfully against the running backend; payment QR state endpoint behavior passed."
+    }
+  ]
+}

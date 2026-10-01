@@ -1,0 +1,25 @@
+{
+  "passed": 9,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [
+    {
+      "type": "test_error",
+      "criterion": "G.Y.O.C. page explains Grow Your Own Crop accurately and offers a custom variety request",
+      "detail": "Browser check assertion used lowercase text while the rendered copy begins with uppercase 'You'. The app rendered the required sentence; update the check assertion before retest."
+    }
+  ],
+  "retest_needed": true,
+  "checks": [
+    {"criterion":"Home clearly presents Micro Might, the exact taglines, local Bengaluru positioning, primary WhatsApp ordering CTA, and responsive navigation","name":"home-brand-navigation","lane":"browser","status":"passed","evidence":"Rendered home hero with both exact taglines, Bengaluru eyebrow, wa.me/919482428467 CTA; mobile menu opened and navigated to /microgreens."},
+    {"criterion":"Our Microgreens page presents exactly the requested 14 varieties with correct names, variety labels, Regular prices, G.Y.O.C. prices, and Signature Mix regular-only pricing","name":"microgreens-catalog-pricing","lane":"browser","status":"passed","evidence":"Catalog rendered 14 product cards with all requested names; Signature Mix displayed ₹109 and ₹204 and regular-only note."},
+    {"criterion":"Product cards support product-specific WhatsApp ordering with weight selection and pricing plan selection","name":"product-whatsapp-order-options","lane":"browser","status":"passed","evidence":"Emerald Vital controls changed ₹79 to ₹149, then G.Y.O.C. ₹169/₹99; order href contained wa.me number, product, variety, weight, and plan."},
+    {"criterion":"G.Y.O.C. page explains Grow Your Own Crop accurately and offers a custom variety request","name":"gyoc-custom-variety-flow","lane":"browser","status":"test_error","evidence":"Rendered page showed required uppercase sentence and custom request links; check assertion failed twice on case-sensitive lowercase substring."},
+    {"criterion":"Ways to Enjoy, About, Why Micro Might, and Contact content is present and accurate","name":"supporting-pages-content","lane":"browser","status":"passed","evidence":"Ways to Enjoy, About, and Contact rendered; exact phone, WhatsApp, address, FSSAI and directions href asserted."},
+    {"criterion":"Public Payment page provides a clear QR payment flow and WhatsApp payment-proof CTA","name":"payment-manual-proof-flow","lane":"browser","status":"passed","evidence":"Payment rendered three steps, manual verification instruction, WhatsApp proof href, and QR image/placeholder surface."},
+    {"criterion":"Demo admin dashboard authenticates and allows replacing the public payment QR","name":"admin-replaces-payment-qr","lane":"browser","status":"passed","evidence":"Demo credentials opened dashboard; image payload previewed, saved, and public /payment displayed QR image."},
+    {"criterion":"Mobile-first layout remains usable without horizontal overflow","name":"mobile-layout-no-overflow","lane":"browser","status":"passed","evidence":"At 390px viewport catalog, payment, admin login and open mobile menu were visible with document scrollWidth contained."},
+    {"criterion":"Public Payment page API returns QR state","name":"test_tscheck_public_payment.py","lane":"backend","status":"passed","evidence":"HTTP GET /api/payment-qr returned 200 and JSON containing qr_data_url."},
+    {"criterion":"Admin QR API authenticates and replaces public QR","name":"test_tscheck_admin_payment_qr.py","lane":"backend","status":"passed","evidence":"HTTP PUT /api/payment-qr returned 401 for invalid credentials and 200 for admin/micromight2026; subsequent GET returned saved data URL."}
+  ]
+}
