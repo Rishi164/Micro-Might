@@ -3,6 +3,8 @@
 ## Product
 Multipage premium farm-to-table storefront for Micro Might, a Bengaluru microgreens brand based in Gottigere. The primary conversion is a persistent cart and stored checkout order. WhatsApp is reserved for enquiries, custom-variety requests, payment help and customer support. Customer-facing messaging says “freshly grown, handled with care, and brought to doorsteps across Bengaluru” and does not use “local” or “locally.”
 
+The six Ways to Enjoy cards use dedicated realistic food photography matched to Salads, Sandwiches, Wraps & Rolls, Breakfast, Bowls & Meals, and Smoothies; product-growing images are not reused for these meal categories.
+
 ## Routes
 - `/` Home: brand story, featured varieties, G.Y.O.C. overview, reasons to choose Micro Might, serving ideas and shop CTAs
 - `/microgreens` exact 14-variety catalog plus Signature Mix, regular/G.Y.O.C. pricing and add-to-cart controls

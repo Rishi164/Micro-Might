@@ -17,6 +17,12 @@ const images = {
   corn: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/289ee9fe5484d67d0bbced3465b44c513449ba05cb12243eec0d7a18be92742a.jpeg",
   redAmaranthus: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/82abb3e6e2764de8299433b726c26bb81fece3b0aa2129b0bc2744b65bff4413.jpeg",
   salad: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/715f0d6ff84201f7318284374dadc99776e49b74a40b96a8be88ea6b365209f1.jpeg",
+  enjoySalads: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/e19f965b06dae357af875a07c51c0aa7c2bc0b3fc16327707658dc71cdc9bb29.jpeg",
+  enjoySandwiches: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/423f6b7493e1c4aadfa6ff0a465e625f10fbc8233631a20376826f75d6fa742e.jpeg",
+  enjoyWraps: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/a83afbc67ecc8e20fa93339b4f8211995d4ab2140f1c9e9c8cc5e9a939e10a66.jpeg",
+  enjoyBreakfast: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/837693eba237272aa437b204028a1c581b374a6c0ed908b5b35d66e47a25e9a0.jpeg",
+  enjoyBowls: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/19709db04f595eec9c9dfa8bf58c153eaa783c5c3be663b52b39508811c8cd88.jpeg",
+  enjoySmoothies: "https://static.prod-images.emergentagent.com/jobs/d4509cc0-f2be-441a-8a8f-d50475c28144/images/b717d59cd566d0535a53a32db014e6d2dc7f3e2531a678a626c890a3c1edb03e.jpeg",
 };
 
 const productRows: [string, string, string, string, [number, number], [number, number], string][] = [
@@ -55,12 +61,12 @@ export const signatureMix = {
 };
 
 export const enjoymentIdeas: EnjoymentIdea[] = [
-  { title: "Salads", description: "Add colour, texture and a fresh finish.", image: images.salad },
-  { title: "Sandwiches", description: "Layer a generous handful between slices.", image: images.sunflower },
-  { title: "Wraps & Rolls", description: "Bring a crisp green note to every bite.", image: images.redRadish },
-  { title: "Breakfast", description: "Finish eggs, toast or savoury bowls.", image: images.wheatgrass },
-  { title: "Bowls & Meals", description: "Top everyday meals just before serving.", image: images.broccoli },
-  { title: "Smoothies", description: "Blend a small handful into your routine.", image: images.pea },
+  { title: "Salads", description: "Add colour, texture and a fresh finish.", image: images.enjoySalads },
+  { title: "Sandwiches", description: "Layer a generous handful between slices.", image: images.enjoySandwiches },
+  { title: "Wraps & Rolls", description: "Bring a crisp green note to every bite.", image: images.enjoyWraps },
+  { title: "Breakfast", description: "Finish eggs, toast or savoury bowls.", image: images.enjoyBreakfast },
+  { title: "Bowls & Meals", description: "Top everyday meals just before serving.", image: images.enjoyBowls },
+  { title: "Smoothies", description: "Blend a small handful into your routine.", image: images.enjoySmoothies },
 ];
 
 export { images };
