@@ -18,6 +18,7 @@ def test_guest_checkout_creates_server_priced_order(client):
         "delivery_address": "77 Tscheck Pricing Lane, Gottigere",
         "pincode": "560083",
         "estimated_distance_km": 9,
+        "preferred_delivery_date": "2026-12-20",
         "payment_method": "cod",
         "payment_reference": None,
         "notes": None,
@@ -41,6 +42,7 @@ def test_guest_checkout_creates_server_priced_order(client):
     assert order["total"] == 478 + expected_delivery + 30
 
     assert order["status"] == "pending_approval"
+    assert order["preferred_delivery_date"] == "2026-12-20"
     assert order["approved_delivery_fee"] is None
     assert order["order_number"].startswith("MM-")
     assert order["email_status"]["customer"] in ("sent", "failed")

@@ -13,6 +13,7 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 from lib.db import client, db, ensure_indexes
 from lib.security import ensure_default_admin
+from lib.inventory import ensure_inventory
 from routers.admin import router as admin_router
 from routers.auth import router as auth_router
 from routers.orders import router as orders_router
@@ -23,6 +24,7 @@ from routers.orders import router as orders_router
 async def lifespan(app: FastAPI):
     await ensure_indexes()
     await ensure_default_admin()
+    await ensure_inventory()
     yield
     client.close()
 

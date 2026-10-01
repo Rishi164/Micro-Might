@@ -15,6 +15,9 @@ export interface User {
   role: "customer" | "admin";
   username: string | null;
   phone: string | null;
+  home_address: string | null;
+  home_pincode: string | null;
+  home_distance_km: number | null;
   created_at: string;
 }
 
@@ -48,6 +51,9 @@ export interface Order {
   delivery_address: string;
   pincode: string;
   estimated_distance_km: number;
+  preferred_delivery_date: string | null;
+  approved_harvest_date: string | null;
+  approved_delivery_date: string | null;
   payment_method: "qr" | "cod";
   payment_reference: string | null;
   payment_status: string;
@@ -62,6 +68,16 @@ export interface Order {
   email_status: Record<string, string>;
   created_at: string;
   updated_at: string;
+}
+
+export interface InventoryItem {
+  product_slug: string;
+  name: string;
+  variety: string;
+  tracking_enabled: boolean;
+  stock_50g: number;
+  stock_100g: number;
+  updated_at: string | null;
 }
 
 export interface ProductPrice {

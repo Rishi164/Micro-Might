@@ -14,6 +14,9 @@ class UserPublic(BaseModel):
     role: UserRole
     username: str | None = None
     phone: str | None = None
+    home_address: str | None = None
+    home_pincode: str | None = None
+    home_distance_km: float | None = None
     created_at: datetime
 
 
@@ -36,6 +39,12 @@ class AuthResponse(BaseModel):
 
 class SessionState(BaseModel):
     user: UserPublic | None = None
+
+
+class CustomerAddressUpdate(BaseModel):
+    home_address: str = Field(min_length=12, max_length=400)
+    home_pincode: str = Field(min_length=6, max_length=6, pattern=r"^[0-9]{6}$")
+    home_distance_km: float = Field(ge=0, le=100)
 
 
 class AdminCreateRequest(BaseModel):

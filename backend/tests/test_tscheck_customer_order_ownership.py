@@ -24,6 +24,7 @@ def test_customer_sees_only_own_order_after_login(client):
         "delivery_address": "12 Tscheck Ownership Road, Gottigere",
         "pincode": "560083",
         "estimated_distance_km": 1,
+        "preferred_delivery_date": "2026-12-20",
         "payment_method": "qr",
         "payment_reference": None,
         "notes": None,

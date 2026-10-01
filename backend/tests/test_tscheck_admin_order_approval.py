@@ -19,6 +19,7 @@ def test_admin_approves_order_and_recalculates_total(client):
         "delivery_address": "3 Tscheck Approval Way, Gottigere",
         "pincode": "560083",
         "estimated_distance_km": 6,
+        "preferred_delivery_date": "2026-12-20",
         "payment_method": "qr",
         "payment_reference": None,
         "notes": None,
@@ -37,7 +38,15 @@ def test_admin_approves_order_and_recalculates_total(client):
     assert listing.status_code == 200, listing.text
     assert any(row["id"] == order["id"] for row in listing.json())
 
-    update = client.patch(f"/admin/orders/{order['id']}", json={"status": "confirmed", "approved_delivery_fee": 36})
+    update = client.patch(
+        f"/admin/orders/{order['id']}",
+        json={
+            "status": "confirmed",
+            "approved_delivery_fee": 36,
+            "approved_harvest_date": "2026-12-18",
+            "approved_delivery_date": "2026-12-20",
+        },
+    )
     assert update.status_code == 200, update.text
     updated = update.json()
     assert updated["status"] == "confirmed"

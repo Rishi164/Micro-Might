@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
@@ -24,6 +24,8 @@ class OrderCreate(BaseModel):
     delivery_address: str = Field(min_length=12, max_length=400)
     pincode: str = Field(min_length=6, max_length=6, pattern=r"^[0-9]{6}$")
     estimated_distance_km: float = Field(ge=0, le=100)
+    preferred_delivery_date: date
+    save_address: bool = False
     payment_method: PaymentMethod
     payment_reference: str | None = Field(default=None, max_length=100)
     notes: str | None = Field(default=None, max_length=500)
@@ -51,6 +53,9 @@ class Order(BaseModel):
     delivery_address: str
     pincode: str
     estimated_distance_km: float
+    preferred_delivery_date: date | None = None
+    approved_harvest_date: date | None = None
+    approved_delivery_date: date | None = None
     payment_method: PaymentMethod
     payment_reference: str | None = None
     payment_status: str
@@ -70,3 +75,21 @@ class Order(BaseModel):
 class OrderAdminUpdate(BaseModel):
     status: Literal["confirmed", "cancelled"]
     approved_delivery_fee: int = Field(ge=0, le=5000)
+    approved_harvest_date: date | None = None
+    approved_delivery_date: date | None = None
+
+
+class InventoryItem(BaseModel):
+    product_slug: str
+    name: str
+    variety: str
+    tracking_enabled: bool = False
+    stock_50g: int = 0
+    stock_100g: int = 0
+    updated_at: datetime | None = None
+
+
+class InventoryUpdate(BaseModel):
+    tracking_enabled: bool
+    stock_50g: int = Field(ge=0, le=10000)
+    stock_100g: int = Field(ge=0, le=10000)

@@ -6,7 +6,7 @@ from pymongo.errors import DuplicateKeyError
 
 from lib.db import db
 from lib.security import clear_session, create_session, get_current_user_optional, hash_password, public_user, require_user, verify_password
-from models.auth import AuthResponse, CustomerLoginRequest, CustomerSignupRequest, SessionState, UserPublic
+from models.auth import AuthResponse, CustomerAddressUpdate, CustomerLoginRequest, CustomerSignupRequest, SessionState, UserPublic
 
 router = APIRouter()
 
@@ -19,6 +19,9 @@ async def signup(payload: CustomerSignupRequest, request: Request, response: Res
         "email": str(payload.email).lower(),
         "phone": payload.phone.strip(),
         "role": "customer",
+        "home_address": None,
+        "home_pincode": None,
+        "home_distance_km": None,
         "password_hash": hash_password(payload.password),
         "created_at": datetime.now(timezone.utc),
     }
@@ -47,6 +50,20 @@ async def me(user: dict = Depends(require_user)) -> UserPublic:
 @router.get("/auth/session", response_model=SessionState)
 async def session_state(user: dict | None = Depends(get_current_user_optional)) -> SessionState:
     return SessionState(user=public_user(user) if user else None)
+
+
+@router.put("/auth/address", response_model=UserPublic)
+async def update_home_address(payload: CustomerAddressUpdate, user: dict = Depends(require_user)) -> UserPublic:
+    if user.get("role") != "customer":
+        raise HTTPException(status_code=403, detail="Customer account required")
+    updates = {
+        "home_address": payload.home_address.strip(),
+        "home_pincode": payload.home_pincode,
+        "home_distance_km": payload.home_distance_km,
+    }
+    await db.users.update_one({"id": user["id"]}, {"$set": updates})
+    user.update(updates)
+    return public_user(user)
 
 
 @router.post("/auth/logout", status_code=204)

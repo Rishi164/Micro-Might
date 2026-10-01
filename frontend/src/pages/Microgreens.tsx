@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -6,10 +7,16 @@ import { PageIntro, SiteLayout } from "@/components/SiteShell";
 import ProductCard from "@/components/ProductCard";
 import { products, signatureMix } from "@/lib/products";
 import { useCart } from "@/components/CartProvider";
+import { apiGet } from "@/lib/api";
+import type { InventoryItem } from "@/lib/types";
 
 export default function Microgreens() {
   const [mixWeight, setMixWeight] = useState<"50g" | "100g">("50g");
   const { addItem } = useCart();
+  const inventoryQuery = useQuery({ queryKey: ["inventory"], queryFn: () => apiGet<InventoryItem[]>("/inventory"), retry: false });
+  const mixInventory = inventoryQuery.data?.find((item) => item.product_slug === "signature-mix");
+  const mixAvailable = mixWeight === "50g" ? mixInventory?.stock_50g : mixInventory?.stock_100g;
+  const mixOutOfStock = mixInventory?.tracking_enabled === true && mixAvailable === 0;
   return (
     <SiteLayout>
       <PageIntro
@@ -43,7 +50,8 @@ export default function Microgreens() {
                   <button type="button" onClick={() => setMixWeight("100g")} className={`rounded-xl border px-5 py-4 text-left ${mixWeight === "100g" ? "border-lime bg-lime/10" : "border-white/15"}`} data-testid="signature-mix-100g-option"><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-lime">100g</p><p className="mt-1 font-heading text-3xl">₹{signatureMix.regular.large}</p></button>
                 </div>
                 <p className="mt-6 max-w-md text-sm leading-relaxed text-cream/60" data-testid="signature-mix-gyoc-note">G.Y.O.C. is available for customers choosing an individual variety. Signature Mix is available only as our regular mixed product.</p>
-                <button type="button" onClick={() => { addItem({ productSlug: "signature-mix", name: signatureMix.name, variety: signatureMix.variety, plan: "regular", weight: mixWeight, unitPrice: mixWeight === "50g" ? signatureMix.regular.small : signatureMix.regular.large, image: signatureMix.image }); toast.success("Signature Mix added to cart"); }} className="mt-8 inline-flex items-center gap-2 rounded-full bg-lime px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-forest" data-testid="signature-mix-add-button"><ShoppingBag size={15} /> Add Signature Mix to cart</button>
+                <p className={`mt-6 text-xs font-semibold ${mixOutOfStock ? "text-red-200" : "text-lime"}`} data-testid="signature-mix-stock">{mixInventory?.tracking_enabled ? `${mixAvailable} ${mixWeight} packs available` : "Available — stock count pending admin setup"}</p>
+                <button type="button" disabled={mixOutOfStock} onClick={() => { addItem({ productSlug: "signature-mix", name: signatureMix.name, variety: signatureMix.variety, plan: "regular", weight: mixWeight, unitPrice: mixWeight === "50g" ? signatureMix.regular.small : signatureMix.regular.large, image: signatureMix.image }); toast.success("Signature Mix added to cart"); }} className="mt-3 inline-flex items-center gap-2 rounded-full bg-lime px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-forest disabled:cursor-not-allowed disabled:bg-cream/20 disabled:text-cream/50" data-testid="signature-mix-add-button"><ShoppingBag size={15} /> {mixOutOfStock ? "Out of stock" : "Add Signature Mix to cart"}</button>
               </div>
             </div>
           </div>

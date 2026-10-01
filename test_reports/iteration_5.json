@@ -1,0 +1,104 @@
+{
+  "iteration": 5,
+  "summary": "Verified saved customer address, preferred/approved delivery dates, admin order filters, and real-pack-count stock enforcement (incl. G.Y.O.C. exemption). Fixed 3 pre-existing backend tests broken by the new required preferred_delivery_date field, and updated 3 existing browser checks (guest checkout, customer dashboard, admin confirm) to supply/assert the new date fields now required by the UI.",
+  "passed": 13,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [
+    "Transactional email provider is shared/rate-limited across the whole test suite (confirmed via direct 429 'rate_limited' response from the email relay after the backend+browser suites ran). Not an app bug — app correctly reports email_status as failed when the provider rejects the send. Space out future order-creating tests/checks against delivered@resend.dev to avoid tripping the provider's limit again."
+  ],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "Signed-in customers can save a reusable home delivery address",
+      "name": "customer-saves-reusable-address",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Account form saved address/pincode/7.2km; value persisted across reload and a full logout/login cycle; checkout pre-filled the same address and still allowed an in-place edit. Ran against public preview URL."
+    },
+    {
+      "criterion": "Signed-in customers can save a reusable home delivery address",
+      "name": "test_tscheck_customer_saved_address.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "PUT /api/auth/address 200 stored 88 Doorstep Lane/560083/7.2; fresh login + GET /api/auth/me 200 returned identical values; unauthenticated PUT /api/auth/address -> 401/403."
+    },
+    {
+      "criterion": "Customers can request when they need an order",
+      "name": "guest-checkout-creates-order",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Checkout required filling checkout-preferred-date-input; created order's preferred_delivery_date == 2026-12-28, status 201, total ₹187."
+    },
+    {
+      "criterion": "Customers can request when they need an order",
+      "name": "test_tscheck_preferred_delivery_date.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /api/orders without preferred_delivery_date -> 422; with 2020-01-01 -> 422 'cannot be in the past'; valid 2026-12-25 -> 201 with preferred_delivery_date stored and echoed."
+    },
+    {
+      "criterion": "Customers can request when they need an order (timeline)",
+      "name": "customer-auth-order-dashboard",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "After signed-in checkout, account order-timeline-requested showed '29 Dec 2026' and harvest/delivery steps showed 'Awaiting admin' pending approval."
+    },
+    {
+      "criterion": "Admins approve harvest and delivery dates before confirmation",
+      "name": "admin-approves-order-delivery-fee",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "admin-requested-date showed 2026-12-30; admin-confirm-order button was disabled until both harvest/delivery date inputs were filled, then confirmed to status Confirmed, total recalculated to ₹174."
+    },
+    {
+      "criterion": "Admins approve harvest and delivery dates before confirmation",
+      "name": "test_tscheck_admin_date_approval.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "PATCH confirm without dates -> 422; delivery-before-harvest (2026-12-20 < 2026-12-23) -> 422; valid harvest 2026-12-22/delivery 2026-12-24 -> 200, stored, total recalculated, email_status.status_update in (sent, failed)."
+    },
+    {
+      "criterion": "Admin order filters work by status, payment and date range",
+      "name": "admin-order-filters-by-status-payment-date",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Fixture qr/cod orders filtered correctly by payment_method, status=confirmed excluded both pending fixtures, reset restored both, a future date range returned 'admin-filtered-count' = '0 orders'."
+    },
+    {
+      "criterion": "Admin order filters work by status, payment and date range",
+      "name": "test_tscheck_admin_order_filters.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /api/admin/orders?payment_method=qr|cod and ?status=pending_approval and ?date_from/date_to all returned exactly the matching fixture ids, confirmed via asserted id set membership."
+    },
+    {
+      "criterion": "Admin stock management uses real pack counts",
+      "name": "admin-stock-management-enforcement",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Stock panel rendered 15 catalog rows; royal-basil started unchecked/0; enabling enforcement + setting stock_50g=1 persisted after reload; over-order (qty2) -> 409; confirmed qty1 regular order deducted stock_50g to 0; row restored to untracked/0 afterward."
+    },
+    {
+      "criterion": "Admin stock management uses real pack counts / G.Y.O.C. remains made to order",
+      "name": "test_tscheck_stock_management.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "PUT /api/admin/inventory/vital-seed enabled tracking with stock_50g=1; over-order qty2 -> 409; G.Y.O.C. qty5 order confirmed 200 without touching regular stock (stayed 1); regular qty1 order confirmed 200 and deducted stock_50g to 0; unauthenticated PUT -> 401/403; row restored to untracked/0."
+    },
+    {
+      "criterion": "Authorization, emails and prior commerce behavior remain sound",
+      "name": "test_tscheck_customer_order_ownership.py / test_tscheck_guest_checkout_pricing.py / test_tscheck_admin_order_approval.py (updated for new required field)",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "All 3 pre-existing files failed with 422 'preferred_delivery_date: Field required' before the fix; updated fixtures now pass (21/21 total suite green), preserving server-canonical pricing, ownership scoping, and admin-only mutation checks."
+    },
+    {
+      "criterion": "Mobile customer and admin screens remain usable",
+      "name": "mobile-layout-no-overflow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At 390x844, catalog/payment/admin-login/mobile-nav screens showed scrollWidth<=innerWidth; new address/checkout/filter/stock checks above additionally asserted scrollWidth-clientWidth<=1 on account, checkout, admin-orders and admin-stock panels."
+    }
+  ]
+}

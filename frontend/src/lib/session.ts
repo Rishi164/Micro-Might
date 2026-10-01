@@ -19,6 +19,10 @@ export function beginSession(user: User) {
   queryClient.setQueryData<SessionState>(SESSION_KEY, { user });
 }
 
+export function updateSessionUser(user: User) {
+  queryClient.setQueryData<SessionState>(SESSION_KEY, { user });
+}
+
 export async function endSession() {
   try {
     await apiPost<void>("/auth/logout");

@@ -125,6 +125,7 @@ async def send_new_order_notifications(order: dict) -> dict[str, str]:
         f'<p>Hi {escape(order["customer_name"])}, thank you for choosing Micro Might. Your order is awaiting delivery-fee review and confirmation.</p>'
         f'<table role="presentation" width="100%">{rows}</table>'
         f'<p><strong>Current estimate: ₹{order["total"]}</strong></p>'
+        f'<p>Requested delivery date: <strong>{escape(str(order.get("preferred_delivery_date") or "Not provided"))}</strong></p>'
         f'<p>Delivery is free within 5 km. Beyond 5 km, the ₹9/km delivery fee is approved by our team before confirmation.</p>'
         f'<p><a href="{APP_URL}/contact">Contact Micro Might</a></p>'
     )
@@ -134,6 +135,7 @@ async def send_new_order_notifications(order: dict) -> dict[str, str]:
         f'<p>{escape(order["delivery_address"])}, {escape(order["pincode"])}</p>'
         f'<table role="presentation" width="100%">{rows}</table>'
         f'<p><strong>Estimated total: ₹{order["total"]}</strong> · {escape(order["payment_method"].upper())}</p>'
+        f'<p>Customer requested delivery: <strong>{escape(str(order.get("preferred_delivery_date") or "Not provided"))}</strong></p>'
         f'<p><a href="{APP_URL}/admin">Review this order in the admin dashboard</a></p>'
     )
     results = await asyncio.gather(
@@ -153,6 +155,7 @@ async def send_order_status_notification(order: dict) -> str:
         f'<h1 style="font-size:28px">Order {escape(order["order_number"])} is {status_label}</h1>'
         f'<p>Hi {escape(order["customer_name"])}, your Micro Might order has been {status_label}.</p>'
         f'<p><strong>Final total: ₹{order["total"]}</strong><br>Approved delivery fee: ₹{order.get("approved_delivery_fee") or 0}</p>'
+        f'<p>Harvest date: <strong>{escape(str(order.get("approved_harvest_date") or "To be confirmed"))}</strong><br>Delivery date: <strong>{escape(str(order.get("approved_delivery_date") or "To be confirmed"))}</strong></p>'
         f'<p><a href="{APP_URL}/contact">Contact Micro Might</a> if you have a question about this update.</p>'
     )
     await send_email(to=order["customer_email"], subject=f"Micro Might order {order['order_number']} {status_label}", html=content)
