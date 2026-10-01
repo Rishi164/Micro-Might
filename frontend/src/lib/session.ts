@@ -1,19 +1,28 @@
-// Session boundary: auth is an httpOnly cookie the backend owns; the frontend's one
-// duty is wiping the react-query cache so one account's data never renders for the next.
-import { queryClient } from "./queryClient";
-import { apiPost } from "./api";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet, apiPost } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
+import type { SessionState, User } from "@/lib/types";
 
-// Call after every successful login/signup.
-export function beginSession(): void {
-  queryClient.clear();
+const SESSION_KEY = ["auth-session"] as const;
+
+export function useSession() {
+  return useQuery({
+    queryKey: SESSION_KEY,
+    queryFn: () => apiGet<SessionState>("/auth/session"),
+    retry: false,
+    staleTime: 60_000,
+  });
 }
 
-// Call from every sign-out control; the hard redirect resets all in-memory state.
-export async function endSession(redirectTo: string = "/login"): Promise<void> {
+export function beginSession(user: User) {
+  queryClient.clear();
+  queryClient.setQueryData<SessionState>(SESSION_KEY, { user });
+}
+
+export async function endSession() {
   try {
-    await apiPost("/auth/logout");
+    await apiPost<void>("/auth/logout");
   } finally {
     queryClient.clear();
-    window.location.assign(redirectTo);
   }
 }

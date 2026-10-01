@@ -1,11 +1,15 @@
-import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { PageIntro, SiteLayout } from "@/components/SiteShell";
 import ProductCard from "@/components/ProductCard";
-import { productOrderUrl } from "@/lib/brand";
 import { products, signatureMix } from "@/lib/products";
+import { useCart } from "@/components/CartProvider";
 
 export default function Microgreens() {
+  const [mixWeight, setMixWeight] = useState<"50g" | "100g">("50g");
+  const { addItem } = useCart();
   return (
     <SiteLayout>
       <PageIntro
@@ -35,11 +39,11 @@ export default function Microgreens() {
                 <h2 className="mt-3 font-heading text-5xl font-semibold leading-none tracking-[-0.05em]" data-testid="signature-mix-name">{signatureMix.name}</h2>
                 <p className="mt-4 max-w-lg text-base leading-relaxed text-cream/70" data-testid="signature-mix-description">{signatureMix.description} A changing balance of fresh textures and colours, prepared as our house mix.</p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <div className="rounded-xl border border-white/15 px-5 py-4"><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-lime">50g</p><p className="mt-1 font-heading text-3xl">₹{signatureMix.regular.small}</p></div>
-                  <div className="rounded-xl border border-white/15 px-5 py-4"><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-lime">100g</p><p className="mt-1 font-heading text-3xl">₹{signatureMix.regular.large}</p></div>
+                  <button type="button" onClick={() => setMixWeight("50g")} className={`rounded-xl border px-5 py-4 text-left ${mixWeight === "50g" ? "border-lime bg-lime/10" : "border-white/15"}`} data-testid="signature-mix-50g-option"><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-lime">50g</p><p className="mt-1 font-heading text-3xl">₹{signatureMix.regular.small}</p></button>
+                  <button type="button" onClick={() => setMixWeight("100g")} className={`rounded-xl border px-5 py-4 text-left ${mixWeight === "100g" ? "border-lime bg-lime/10" : "border-white/15"}`} data-testid="signature-mix-100g-option"><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-lime">100g</p><p className="mt-1 font-heading text-3xl">₹{signatureMix.regular.large}</p></button>
                 </div>
                 <p className="mt-6 max-w-md text-sm leading-relaxed text-cream/60" data-testid="signature-mix-gyoc-note">G.Y.O.C. is available for customers choosing an individual variety. Signature Mix is available only as our regular mixed product.</p>
-                <a href={productOrderUrl(signatureMix.name, signatureMix.variety, "50g")} target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-white" data-testid="signature-mix-order-button">Order Signature Mix <ArrowRight size={15} /></a>
+                <button type="button" onClick={() => { addItem({ productSlug: "signature-mix", name: signatureMix.name, variety: signatureMix.variety, plan: "regular", weight: mixWeight, unitPrice: mixWeight === "50g" ? signatureMix.regular.small : signatureMix.regular.large, image: signatureMix.image }); toast.success("Signature Mix added to cart"); }} className="mt-8 inline-flex items-center gap-2 rounded-full bg-lime px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-forest" data-testid="signature-mix-add-button"><ShoppingBag size={15} /> Add Signature Mix to cart</button>
               </div>
             </div>
           </div>

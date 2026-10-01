@@ -7,11 +7,16 @@ import Gyoc from "@/pages/Gyoc";
 import Microgreens from "@/pages/Microgreens";
 import Payment from "@/pages/Payment";
 import WaysToEnjoy from "@/pages/WaysToEnjoy";
+import Account from "@/pages/Account";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
+import Login from "@/pages/Login";
+import ScrollToTop from "@/components/ScrollToTop";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
   return (
-    <Routes>
+    <><ScrollToTop /><Routes>
       <Route path="/" element={<Home />} />
       <Route path="/microgreens" element={<Microgreens />} />
       <Route path="/gyoc" element={<Gyoc />} />
@@ -20,6 +25,10 @@ export default function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/admin" element={<Admin />} />
-    </Routes>
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/account" element={<Account />} />
+    </Routes></>
   );
 }

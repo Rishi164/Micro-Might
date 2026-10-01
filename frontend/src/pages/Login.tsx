@@ -1,0 +1,27 @@
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, LockKeyhole, UserPlus } from "lucide-react";
+import { PageIntro, SiteLayout } from "@/components/SiteShell";
+import { apiPost } from "@/lib/api";
+import { beginSession, useSession } from "@/lib/session";
+import type { AuthResponse } from "@/lib/types";
+
+export default function Login() {
+  const navigate = useNavigate();
+  const session = useSession();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [error, setError] = useState("");
+  const mutation = useMutation({
+    mutationFn: () => mode === "login"
+      ? apiPost<AuthResponse>("/auth/login", { email: form.email, password: form.password })
+      : apiPost<AuthResponse>("/auth/signup", { name: form.name, email: form.email, phone: form.phone, password: form.password }),
+    onSuccess: (response) => { beginSession(response.user); navigate("/account"); },
+    onError: () => setError(mode === "login" ? "Email or password did not match." : "We could not create this account. The email may already be registered."),
+  });
+
+  if (session.data?.user) return <SiteLayout><section className="bg-cream px-5 py-24 text-center"><h1 className="font-heading text-5xl text-forest">You’re already signed in.</h1><Link to="/account" className="mt-7 inline-flex items-center gap-2 rounded-full bg-forest px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-white" data-testid="login-account-link">Go to my dashboard <ArrowRight size={15} /></Link></section></SiteLayout>;
+
+  return <SiteLayout><PageIntro eyebrow="Customer account" title="Keep your orders in one fresh place." description="Create an optional account to see your Micro Might order history. Prefer not to sign up? Guest checkout is always available." /><section className="bg-cream px-5 py-14 sm:py-20 lg:px-10 lg:py-24" data-testid="customer-login-section"><div className="mx-auto max-w-md rounded-[2rem] border border-line bg-white p-7 shadow-[0_15px_45px_rgba(0,0,0,0.05)] sm:p-10"><div className="flex rounded-xl bg-sage p-1"><button type="button" onClick={() => { setMode("login"); setError(""); }} className={`flex-1 rounded-lg py-3 text-xs font-bold uppercase tracking-[0.1em] ${mode === "login" ? "bg-forest text-white" : "text-forest"}`} data-testid="customer-login-tab">Sign in</button><button type="button" onClick={() => { setMode("signup"); setError(""); }} className={`flex-1 rounded-lg py-3 text-xs font-bold uppercase tracking-[0.1em] ${mode === "signup" ? "bg-forest text-white" : "text-forest"}`} data-testid="customer-signup-tab">Create account</button></div><div className="mt-7 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-full bg-sage text-green">{mode === "login" ? <LockKeyhole size={20} /> : <UserPlus size={20} />}</span><div><p className="label text-green">{mode === "login" ? "Welcome back" : "Optional account"}</p><h2 className="font-heading text-3xl text-forest">{mode === "login" ? "Sign in" : "Create your account"}</h2></div></div><form className="mt-7 space-y-4" onSubmit={(event) => { event.preventDefault(); mutation.mutate(); }} data-testid="customer-auth-form">{mode === "signup" && <><label className="block text-xs font-bold uppercase tracking-[0.1em] text-green">Full name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="mt-2 w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm normal-case tracking-normal text-ink" data-testid="customer-name-input" /></label><label className="block text-xs font-bold uppercase tracking-[0.1em] text-green">Phone<input required minLength={10} maxLength={15} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} className="mt-2 w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm normal-case tracking-normal text-ink" data-testid="customer-phone-input" /></label></>}<label className="block text-xs font-bold uppercase tracking-[0.1em] text-green">Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} className="mt-2 w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm normal-case tracking-normal text-ink" data-testid="customer-email-input" /></label><label className="block text-xs font-bold uppercase tracking-[0.1em] text-green">Password<input required type="password" minLength={8} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} className="mt-2 w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm normal-case tracking-normal text-ink" data-testid="customer-password-input" /></label>{error && <p className="text-sm text-red-700" data-testid="customer-auth-error">{error}</p>}<button type="submit" disabled={mutation.isPending} className="w-full rounded-full bg-forest px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-white disabled:opacity-50" data-testid="customer-auth-submit-button">{mutation.isPending ? "Please wait..." : mode === "login" ? "Sign in" : "Create account"}</button></form><p className="mt-6 text-center text-xs text-ink/50">No account needed. <Link to="/checkout" className="font-bold text-green" data-testid="guest-checkout-link">Continue as a guest</Link></p></div></section></SiteLayout>;
+}

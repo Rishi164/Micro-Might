@@ -13,25 +13,14 @@ SUPPLIED_QR_URL = (
 def test_payment_qr_can_be_restored_to_supplied_phonepe_qr(client):
     fixture_qr = "data:image/png;base64,dHNjaGVjay1xci1yZXN0b3Jl"
 
-    temp_response = client.put(
-        "/payment-qr",
-        json={
-            "qr_data_url": fixture_qr,
-            "admin_username": "admin",
-            "admin_password": "micromight2026",
-        },
-    )
+    login = client.post("/admin/login", json={"username": "admin", "password": "micromight2026"})
+    assert login.status_code == 200, login.text
+
+    temp_response = client.put("/payment-qr", json={"qr_data_url": fixture_qr})
     assert temp_response.status_code == 200
     assert temp_response.json()["qr_data_url"] == fixture_qr
 
-    restore_response = client.put(
-        "/payment-qr",
-        json={
-            "qr_data_url": SUPPLIED_QR_URL,
-            "admin_username": "admin",
-            "admin_password": "micromight2026",
-        },
-    )
+    restore_response = client.put("/payment-qr", json={"qr_data_url": SUPPLIED_QR_URL})
     assert restore_response.status_code == 200
     assert restore_response.json()["qr_data_url"] == SUPPLIED_QR_URL
 

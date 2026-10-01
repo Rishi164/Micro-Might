@@ -11,19 +11,10 @@ export function whatsappUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function productOrderUrl(name: string, variety: string, weight: string, plan = "regular") {
-  const planLabel = plan === "gyoc" ? "G.Y.O.C." : "regular pricing";
-  return whatsappUrl(`Hi Micro Might, I'd like to order ${name} — ${variety} Microgreens, ${weight} (${planLabel}).`);
-}
-
 export const customVarietyUrl = whatsappUrl(
   "Hi Micro Might, I'd like to request a custom microgreen variety through G.Y.O.C. The variety I'm looking for is ______.",
 );
 
 export const paymentProofUrl = whatsappUrl(
   "Hi Micro Might, I've completed my payment. I'm sharing the payment proof and my order details here.",
-);
-
-export const codOrderUrl = whatsappUrl(
-  "Hi Micro Might, I'd like to place my order with Cash on Delivery. I understand the COD charge is ₹30 and delivery beyond 5 km is charged at ₹9 per km.",
 );

@@ -1,0 +1,93 @@
+{
+  "passed": 12,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "Products and Signature Mix use Add to Cart instead of WhatsApp ordering",
+      "name": "product-cart-add-no-whatsapp",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "No wa.me link inside product-card-emerald-vital; rapid plan/weight clicks ended on Regular/50g showing ₹79 (aria-pressed true, border-forest class); Signature Mix has no gyoc tab and uses its own regular-only add control; no 'order on whatsapp' text anywhere; both items landed in cart with canonical prices ₹79 and ₹204."
+    },
+    {
+      "criterion": "Cart is persistent and fully editable",
+      "name": "cart-persist-edit-mobile-checkout",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Adding the same Golden Crunch 50g variant twice merged into qty 2 (₹178) instead of duplicating rows; qty/price persisted across page reload and SPA navigation; increase/decrease recalculated line total and cart-subtotal correctly (₹267 -> ₹178); checkout reachable at 390px with scrollWidth-clientWidth <= 1 (no horizontal overflow); remove emptied the cart (cart-empty-state)."
+    },
+    {
+      "criterion": "Guest checkout creates a stored, server-priced order and sends notifications",
+      "name": "guest-checkout-creates-order",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "POST /api/orders returned 201 with order_number MM-..., status pending_approval, server-computed total ₹187 (subtotal 94 + COD 30 + delivery ceil(12-5)*9=63) for a guest with no account; email_status customer/owner != 'failed'; order-success screen showed matching order number/total; cart cleared after success. First attempt hit an upstream email-provider 429 rate-limit (logged in backend.err.log); passed cleanly on the allowed one-time rerun -> classified flaky, not an app bug."
+    },
+    {
+      "criterion": "Optional customer authentication and order dashboard work",
+      "name": "customer-auth-order-dashboard",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Logged in as delivered@resend.dev; no guest sign-in prompt shown at checkout; checkout while signed in returned 201 with customer_id set; new order appeared in /account immediately via account-order-<id> without a manual refresh; after sign out /account showed the login prompt and the order row count was 0 -- no cached-order leakage."
+    },
+    {
+      "criterion": "Admin order management and delivery approval work",
+      "name": "admin-approves-order-delivery-fee",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Fixture order created via API (total ₹156, pending_approval); admin login as 'admin' showed it in the orders panel; setting approved delivery fee to 45 and clicking Approve & confirm updated status to 'Confirmed' and recalculated total to ₹174 (119 subtotal + 0 cod + 45 approved fee)."
+    },
+    {
+      "criterion": "Multiple admin access works",
+      "name": "admin-users-panel-and-secondary-login",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Admin Users panel (primary login) listed both @admin and @operations; operations/GrowWithCare2026! logged in independently and reached the admin dashboard with 'Signed in as' header."
+    },
+    {
+      "criterion": "WhatsApp is support-only and payment choices remain professional",
+      "name": "whatsapp-support-only-payment-professional",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Header/mobile menu, contact, and payment WhatsApp CTAs all read 'WhatsApp support' and link to wa.me; Payment page's COD card button navigated into /checkout (not WhatsApp); zero elements anywhere read 'order on whatsapp'. Re-ran against the public preview URL (fresh-from-trays.preview.emergentagent.com) successfully."
+    },
+    {
+      "criterion": "Guest checkout creates a stored, server-priced order and sends notifications (backend pricing/notification contract)",
+      "name": "test_tscheck_guest_checkout_pricing.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /orders (guest) recomputed unit_price=239 for emerald-crown gyoc/100g server-side regardless of any client price, line_total 478, estimated_delivery_fee=ceil(9-5)*9=36, cod_fee 30, total 544, status pending_approval, email_status keys present for customer & owner; POST /orders with an invalid product_slug returned 422."
+    },
+    {
+      "criterion": "Optional customer authentication and order dashboard work (ownership/authorization)",
+      "name": "test_tscheck_customer_order_ownership.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "Logged-in customer's created order.id appeared in GET /orders/mine (customer_id matched session user id); unauthenticated GET /orders/mine returned 401."
+    },
+    {
+      "criterion": "Admin order management and delivery approval work (recalculation/authorization)",
+      "name": "test_tscheck_admin_order_approval.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "PATCH /admin/orders/{id} with approved_delivery_fee=36 returned status 'confirmed' and total 119+0+36=155, email_status.status_update attempted; unauthenticated GET /admin/orders returned 401."
+    },
+    {
+      "criterion": "Multiple admin access works (independent login + protected creation endpoint)",
+      "name": "test_tscheck_secondary_admin_access.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /admin/login with operations/GrowWithCare2026! returned 200; primary admin's GET /admin/admins listed both 'admin' and 'operations'; unauthenticated POST /admin/admins returned 401."
+    },
+    {
+      "criterion": "Backend authorization, data ownership, and mobile UX are sound (regression: existing payment-QR admin flow under current session-based auth)",
+      "name": "test_tscheck_admin_payment_qr.py / test_tscheck_payment_qr_restore.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "These 2 pre-existing files assumed a legacy body-credential contract (admin_username/admin_password per request); the app now enforces require_admin via session cookie on PUT /payment-qr. Updated both to call POST /admin/login first; all now pass: unauthenticated PUT returns 401, authenticated PUT returns 200, and the supplied PhonePe QR restore step still succeeds. Mobile no-overflow is additionally evidenced in cart-persist-edit-mobile-checkout (browser, 390px)."
+    }
+  ]
+}

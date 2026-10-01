@@ -5,6 +5,63 @@ export interface PaymentQr {
 
 export interface AdminLoginResponse {
   authenticated: boolean;
+  user: User;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "customer" | "admin";
+  username: string | null;
+  phone: string | null;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  authenticated: boolean;
+  user: User;
+}
+
+export interface SessionState {
+  user: User | null;
+}
+
+export interface OrderItem {
+  product_slug: string;
+  name: string;
+  variety: string;
+  plan: "regular" | "gyoc";
+  weight: "50g" | "100g";
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+export interface Order {
+  id: string;
+  order_number: string;
+  customer_id: string | null;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  delivery_address: string;
+  pincode: string;
+  estimated_distance_km: number;
+  payment_method: "qr" | "cod";
+  payment_reference: string | null;
+  payment_status: string;
+  status: "pending_approval" | "confirmed" | "cancelled";
+  items: OrderItem[];
+  subtotal: number;
+  cod_fee: number;
+  estimated_delivery_fee: number;
+  approved_delivery_fee: number | null;
+  total: number;
+  notes: string | null;
+  email_status: Record<string, string>;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ProductPrice {

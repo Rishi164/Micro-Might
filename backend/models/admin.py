@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from models.auth import UserPublic
+
 
 class AdminLoginRequest(BaseModel):
     username: str
@@ -10,6 +12,7 @@ class AdminLoginRequest(BaseModel):
 
 class AdminLoginResponse(BaseModel):
     authenticated: bool
+    user: UserPublic
 
 
 class PaymentQr(BaseModel):
@@ -19,5 +22,3 @@ class PaymentQr(BaseModel):
 
 class PaymentQrUpdate(BaseModel):
     qr_data_url: str = Field(min_length=20)
-    admin_username: str
-    admin_password: str

@@ -1,0 +1,17 @@
+CATALOG: dict[str, dict] = {
+    "emerald-vital": {"name": "Emerald Vital", "variety": "Wheatgrass", "regular": {"50g": 79, "100g": 149}, "gyoc": {"50g": 99, "100g": 169}},
+    "golden-crunch": {"name": "Golden Crunch", "variety": "Sunflower", "regular": {"50g": 89, "100g": 159}, "gyoc": {"50g": 109, "100g": 179}},
+    "verdant-rise": {"name": "Verdant Rise", "variety": "Pea", "regular": {"50g": 99, "100g": 179}, "gyoc": {"50g": 119, "100g": 199}},
+    "ruby-blaze": {"name": "Ruby Blaze", "variety": "Red Radish", "regular": {"50g": 94, "100g": 176}, "gyoc": {"50g": 114, "100g": 196}},
+    "golden-spice": {"name": "Golden Spice", "variety": "Mustard", "regular": {"50g": 79, "100g": 149}, "gyoc": {"50g": 99, "100g": 169}},
+    "herbal-gold": {"name": "Herbal Gold", "variety": "Methi / Fenugreek", "regular": {"50g": 79, "100g": 149}, "gyoc": {"50g": 99, "100g": 169}},
+    "emerald-leaf": {"name": "Emerald Leaf", "variety": "Spinach", "regular": {"50g": 89, "100g": 169}, "gyoc": {"50g": 109, "100g": 189}},
+    "crimson-root": {"name": "Crimson Root", "variety": "Beetroot", "regular": {"50g": 119, "100g": 219}, "gyoc": {"50g": 139, "100g": 239}},
+    "emerald-crown": {"name": "Emerald Crown", "variety": "Broccoli", "regular": {"50g": 119, "100g": 219}, "gyoc": {"50g": 139, "100g": 239}},
+    "royal-basil": {"name": "Royal Basil", "variety": "Basil", "regular": {"50g": 119, "100g": 219}, "gyoc": {"50g": 139, "100g": 239}},
+    "vital-seed": {"name": "Vital Seed", "variety": "Chia", "regular": {"50g": 99, "100g": 179}, "gyoc": {"50g": 119, "100g": 199}},
+    "green-crisp": {"name": "Green Crisp", "variety": "Celery", "regular": {"50g": 119, "100g": 219}, "gyoc": {"50g": 139, "100g": 239}},
+    "golden-silk": {"name": "Golden Silk", "variety": "Corn", "regular": {"50g": 89, "100g": 169}, "gyoc": {"50g": 109, "100g": 189}},
+    "crimson-jewel": {"name": "Crimson Jewel", "variety": "Red Amaranthus", "regular": {"50g": 109, "100g": 199}, "gyoc": {"50g": 129, "100g": 219}},
+    "signature-mix": {"name": "Micro Might Signature Mix", "variety": "Mixed Microgreens", "regular": {"50g": 109, "100g": 204}},
+}
