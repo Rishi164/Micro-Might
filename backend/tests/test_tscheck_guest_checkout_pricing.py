@@ -59,7 +59,7 @@ def test_invalid_product_slug_rejected(client):
         "delivery_address": "77 Tscheck Pricing Lane, Gottigere",
         "pincode": "560083",
         "estimated_distance_km": 2,
-        "payment_method": "qr",
+        "payment_method": "cod",
         "payment_reference": None,
         "notes": None,
         "items": [

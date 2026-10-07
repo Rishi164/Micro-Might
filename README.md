@@ -159,6 +159,9 @@ Two lanes.
 cd /app/backend && /root/.venv/bin/python -m pytest
 ```
 
+The suite covers server-priced orders, rejected out-of-area COD and unverified
+payment attempts, saved customer data, and admin order workflows.
+
 `backend/pytest.ini` is canonical: `addopts = -n 2 --dist loadscope` (pytest-xdist,
 already parallel — do not pass your own `-n`) and `asyncio_mode = auto` (so
 `async def test_...` needs no marker). Serial is `-n 0`, **never**
