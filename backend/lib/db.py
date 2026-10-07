@@ -36,6 +36,10 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("payment_method", ASCENDING), ("created_at", DESCENDING)], name="payment_created"),
     ],
     "inventory": [IndexModel([("product_slug", ASCENDING)], name="product_slug_unique", unique=True)],
+    "payment_intents": [
+        IndexModel([("razorpay_order_id", ASCENDING)], name="razorpay_order_unique", unique=True),
+        IndexModel([("expires_at", ASCENDING)], name="payment_intent_ttl", expireAfterSeconds=0),
+    ],
 }
 
 

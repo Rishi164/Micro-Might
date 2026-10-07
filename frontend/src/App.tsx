@@ -5,11 +5,11 @@ import Admin from "@/pages/Admin";
 import Contact from "@/pages/Contact";
 import Gyoc from "@/pages/Gyoc";
 import Microgreens from "@/pages/Microgreens";
-import Payment from "@/pages/Payment";
+import PaymentMethods from "@/pages/PaymentMethods";
 import WaysToEnjoy from "@/pages/WaysToEnjoy";
 import Account from "@/pages/Account";
 import Cart from "@/pages/Cart";
-import Checkout from "@/pages/Checkout";
+import CheckoutFlow from "@/pages/CheckoutFlow";
 import Login from "@/pages/Login";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -23,10 +23,10 @@ export default function App() {
       <Route path="/ways-to-enjoy" element={<WaysToEnjoy />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/payment" element={<Payment />} />
+      <Route path="/payment" element={<PaymentMethods />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/checkout" element={<CheckoutFlow />} />
       <Route path="/login" element={<Login />} />
       <Route path="/account" element={<Account />} />
     </Routes></>

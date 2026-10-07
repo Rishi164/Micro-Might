@@ -3,6 +3,38 @@ export interface PaymentQr {
   updated_at: string | null;
 }
 
+export interface RazorpayConfig {
+  enabled: boolean;
+}
+
+export interface RazorpayOrder {
+  key_id: string;
+  order_id: string;
+  amount: number;
+  currency: "INR";
+}
+
+export interface RazorpayPaymentResult {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+export interface OrderCreateRequest {
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  delivery_address: string;
+  pincode: string;
+  estimated_distance_km: number;
+  preferred_delivery_date: string;
+  save_address: boolean;
+  payment_method: "razorpay" | "cod";
+  payment_reference: string | null;
+  notes: string | null;
+  items: Array<Pick<OrderItem, "product_slug" | "plan" | "weight" | "quantity">>;
+}
+
 export interface AdminLoginResponse {
   authenticated: boolean;
   user: User;
@@ -54,7 +86,7 @@ export interface Order {
   preferred_delivery_date: string | null;
   approved_harvest_date: string | null;
   approved_delivery_date: string | null;
-  payment_method: "qr" | "cod";
+  payment_method: "qr" | "razorpay" | "cod";
   payment_reference: string | null;
   payment_status: string;
   status: "pending_approval" | "confirmed" | "cancelled";

@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 OrderPlan = Literal["regular", "gyoc"]
 OrderWeight = Literal["50g", "100g"]
-PaymentMethod = Literal["qr", "cod"]
+PaymentMethod = Literal["qr", "razorpay", "cod"]
 OrderStatus = Literal["pending_approval", "confirmed", "cancelled"]
 
 
@@ -26,10 +26,27 @@ class OrderCreate(BaseModel):
     estimated_distance_km: float = Field(ge=0, le=100)
     preferred_delivery_date: date
     save_address: bool = False
-    payment_method: PaymentMethod
+    payment_method: Literal["razorpay", "cod"]
     payment_reference: str | None = Field(default=None, max_length=100)
     notes: str | None = Field(default=None, max_length=500)
     items: list[CartItemRequest] = Field(min_length=1, max_length=30)
+
+
+class RazorpayOrderResponse(BaseModel):
+    key_id: str
+    order_id: str
+    amount: int
+    currency: Literal["INR"]
+
+
+class RazorpayConfig(BaseModel):
+    enabled: bool
+
+
+class RazorpayVerifyRequest(BaseModel):
+    razorpay_order_id: str = Field(min_length=1, max_length=100)
+    razorpay_payment_id: str = Field(min_length=1, max_length=100)
+    razorpay_signature: str = Field(min_length=1, max_length=256)
 
 
 class OrderItem(BaseModel):

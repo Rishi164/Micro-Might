@@ -25,7 +25,7 @@ def test_customer_sees_only_own_order_after_login(client):
         "pincode": "560083",
         "estimated_distance_km": 1,
         "preferred_delivery_date": "2026-12-20",
-        "payment_method": "qr",
+        "payment_method": "cod",
         "payment_reference": None,
         "notes": None,
         "items": [{"product_slug": "golden-silk", "plan": "regular", "weight": "50g", "quantity": 1}],

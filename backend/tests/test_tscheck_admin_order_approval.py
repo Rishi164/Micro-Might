@@ -20,7 +20,7 @@ def test_admin_approves_order_and_recalculates_total(client):
         "pincode": "560083",
         "estimated_distance_km": 6,
         "preferred_delivery_date": "2026-12-20",
-        "payment_method": "qr",
+        "payment_method": "cod",
         "payment_reference": None,
         "notes": None,
         "items": [{"product_slug": "crimson-root", "plan": "regular", "weight": "50g", "quantity": 1}],
@@ -29,7 +29,7 @@ def test_admin_approves_order_and_recalculates_total(client):
     assert created.status_code == 201, created.text
     order = created.json()
     assert order["subtotal"] == 119
-    assert order["cod_fee"] == 0
+    assert order["cod_fee"] == 30
 
     admin_login = client.post("/admin/login", json={"username": ADMIN_USERNAME, "password": ADMIN_PASSWORD})
     assert admin_login.status_code == 200, admin_login.text
@@ -51,7 +51,7 @@ def test_admin_approves_order_and_recalculates_total(client):
     updated = update.json()
     assert updated["status"] == "confirmed"
     assert updated["approved_delivery_fee"] == 36
-    assert updated["total"] == 119 + 0 + 36
+    assert updated["total"] == 119 + 30 + 36
     assert updated["email_status"].get("status_update") in ("sent", "failed")
 
 

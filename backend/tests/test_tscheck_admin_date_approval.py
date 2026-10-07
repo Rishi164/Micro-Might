@@ -18,7 +18,7 @@ def test_admin_date_approval_gating_and_confirmation(client):
         "pincode": "560083",
         "estimated_distance_km": 6,
         "preferred_delivery_date": "2026-12-24",
-        "payment_method": "qr",
+        "payment_method": "cod",
         "payment_reference": None,
         "notes": None,
         "items": [{"product_slug": "crimson-root", "plan": "regular", "weight": "50g", "quantity": 1}],

@@ -1,10 +1,15 @@
+import hashlib
+import hmac
 import math
+import os
 import secrets
 import uuid
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Literal
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pymongo import ReturnDocument
 
 from lib.catalog import CATALOG
 from lib.db import db
@@ -12,7 +17,17 @@ from lib.email_service import send_new_order_notifications, send_order_status_no
 from lib.inventory import ensure_inventory, inventory_list
 from lib.dates import today_iso
 from lib.security import get_current_user_optional, require_admin, require_user
-from models.orders import InventoryItem, InventoryUpdate, Order, OrderAdminUpdate, OrderCreate, OrderItem
+from models.orders import (
+    InventoryItem,
+    InventoryUpdate,
+    Order,
+    OrderAdminUpdate,
+    OrderCreate,
+    OrderItem,
+    RazorpayConfig,
+    RazorpayOrderResponse,
+    RazorpayVerifyRequest,
+)
 
 router = APIRouter()
 
@@ -68,13 +83,25 @@ async def _deduct_stock(items: list[dict]) -> None:
         )
 
 
-@router.post("/orders", response_model=Order, status_code=201)
-async def create_order(payload: OrderCreate, user: dict | None = Depends(get_current_user_optional)) -> Order:
+def _validate_order(payload: OrderCreate) -> list[OrderItem]:
     items = _priced_items(payload)
-    await _check_stock(items)
     today = date.fromisoformat(today_iso())
     if payload.preferred_delivery_date < today:
         raise HTTPException(status_code=422, detail="Preferred delivery date cannot be in the past")
+    if payload.payment_method == "cod" and not payload.pincode.startswith("560"):
+        raise HTTPException(status_code=422, detail="Cash on Delivery is available only in Bengaluru")
+    return items
+
+
+@router.get("/payments/razorpay/config", response_model=RazorpayConfig)
+async def razorpay_config() -> RazorpayConfig:
+    return RazorpayConfig(
+        enabled=bool(os.environ.get("RAZORPAY_KEY_ID", "").strip() and os.environ.get("RAZORPAY_KEY_SECRET", "").strip()),
+    )
+
+
+async def _save_order(payload: OrderCreate, user: dict | None, items: list[OrderItem]) -> Order:
+    await _check_stock(items)
     subtotal = sum(item.line_total for item in items)
     extra_km = max(0, math.ceil(payload.estimated_distance_km - 5))
     estimated_delivery_fee = extra_km * 9
@@ -95,7 +122,7 @@ async def create_order(payload: OrderCreate, user: dict | None = Depends(get_cur
         "approved_delivery_date": None,
         "payment_method": payload.payment_method,
         "payment_reference": payload.payment_reference.strip() if payload.payment_reference else None,
-        "payment_status": "cod_due" if payload.payment_method == "cod" else "awaiting_verification",
+        "payment_status": "cod_due" if payload.payment_method == "cod" else "paid" if payload.payment_method == "razorpay" else "awaiting_verification",
         "status": "pending_approval",
         "items": [item.model_dump() for item in items],
         "subtotal": subtotal,
@@ -121,6 +148,123 @@ async def create_order(payload: OrderCreate, user: dict | None = Depends(get_cur
     return _to_order(document)
 
 
+@router.post("/payments/razorpay/order", response_model=RazorpayOrderResponse)
+async def create_razorpay_order(
+    payload: OrderCreate,
+    user: dict | None = Depends(get_current_user_optional),
+) -> RazorpayOrderResponse:
+    key_id = os.environ.get("RAZORPAY_KEY_ID", "").strip()
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "").strip()
+    if not key_id or not key_secret:
+        raise HTTPException(status_code=503, detail="Razorpay is not configured")
+    if payload.payment_method != "razorpay":
+        raise HTTPException(status_code=422, detail="Razorpay checkout requires Razorpay as the payment method")
+
+    items = _validate_order(payload)
+    await _check_stock(items)
+    subtotal = sum(item.line_total for item in items)
+    delivery_fee = max(0, math.ceil(payload.estimated_distance_km - 5)) * 9
+    amount = (subtotal + delivery_fee) * 100
+    receipt = str(uuid.uuid4())
+    try:
+        async with httpx.AsyncClient(timeout=15) as gateway:
+            response = await gateway.post(
+                "https://api.razorpay.com/v1/orders",
+                auth=(key_id, key_secret),
+                json={"amount": amount, "currency": "INR", "receipt": receipt},
+            )
+            response.raise_for_status()
+            gateway_order = response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail="Could not start Razorpay checkout") from exc
+
+    now = datetime.now(timezone.utc)
+    await db.payment_intents.insert_one({
+        "razorpay_order_id": gateway_order["id"],
+        "amount": amount,
+        "payload": payload.model_dump(mode="json"),
+        "customer_id": user["id"] if user and user.get("role") == "customer" else None,
+        "status": "created",
+        "created_at": now,
+        "expires_at": now + timedelta(minutes=30),
+    })
+    return RazorpayOrderResponse(key_id=key_id, order_id=gateway_order["id"], amount=amount, currency="INR")
+
+
+@router.post("/payments/razorpay/verify", response_model=Order)
+async def verify_razorpay_payment(payload: RazorpayVerifyRequest) -> Order:
+    key_id = os.environ.get("RAZORPAY_KEY_ID", "").strip()
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "").strip()
+    if not key_id or not key_secret:
+        raise HTTPException(status_code=503, detail="Razorpay is not configured")
+
+    intent = await db.payment_intents.find_one({"razorpay_order_id": payload.razorpay_order_id})
+    if not intent:
+        raise HTTPException(status_code=404, detail="Razorpay order was not found or has expired")
+
+    signed_payload = f"{payload.razorpay_order_id}|{payload.razorpay_payment_id}".encode()
+    expected_signature = hmac.new(key_secret.encode(), signed_payload, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected_signature, payload.razorpay_signature):
+        raise HTTPException(status_code=400, detail="Razorpay payment signature is invalid")
+
+    if intent["status"] == "completed":
+        existing = await db.orders.find_one({"id": intent.get("order_id")}, {"_id": 0})
+        if existing:
+            return _to_order(existing)
+    try:
+        async with httpx.AsyncClient(timeout=15) as gateway:
+            response = await gateway.get(
+                f"https://api.razorpay.com/v1/payments/{payload.razorpay_payment_id}",
+                auth=(key_id, key_secret),
+            )
+            response.raise_for_status()
+            payment = response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail="Could not verify the Razorpay payment") from exc
+
+    if (
+        payment.get("order_id") != payload.razorpay_order_id
+        or payment.get("amount") != intent["amount"]
+        or payment.get("status") != "captured"
+    ):
+        raise HTTPException(status_code=400, detail="Razorpay payment has not been captured for this order")
+
+    claimed = await db.payment_intents.find_one_and_update(
+        {"razorpay_order_id": payload.razorpay_order_id, "status": "created"},
+        {"$set": {"status": "processing", "payment_id": payload.razorpay_payment_id}},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not claimed:
+        raise HTTPException(status_code=409, detail="This Razorpay payment is already being processed")
+
+    order_payload = OrderCreate.model_validate(claimed["payload"]).model_copy(
+        update={"payment_reference": payload.razorpay_payment_id},
+    )
+    user = await db.users.find_one({"id": claimed.get("customer_id")}, {"_id": 0}) if claimed.get("customer_id") else None
+    try:
+        items = _validate_order(order_payload)
+        order = await _save_order(order_payload, user, items)
+    except Exception:
+        await db.payment_intents.update_one(
+            {"razorpay_order_id": payload.razorpay_order_id, "status": "processing"},
+            {"$set": {"status": "created"}, "$unset": {"payment_id": ""}},
+        )
+        raise
+    await db.payment_intents.update_one(
+        {"razorpay_order_id": payload.razorpay_order_id},
+        {"$set": {"status": "completed", "order_id": order.id}},
+    )
+    return order
+
+
+@router.post("/orders", response_model=Order, status_code=201)
+async def create_order(payload: OrderCreate, user: dict | None = Depends(get_current_user_optional)) -> Order:
+    if payload.payment_method == "razorpay":
+        raise HTTPException(status_code=422, detail="Use the verified Razorpay checkout flow")
+    items = _validate_order(payload)
+    return await _save_order(payload, user, items)
+
+
 @router.get("/orders/mine", response_model=list[Order])
 async def my_orders(user: dict = Depends(require_user)) -> list[Order]:
     orders = await db.orders.find({"customer_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
@@ -130,7 +274,7 @@ async def my_orders(user: dict = Depends(require_user)) -> list[Order]:
 @router.get("/admin/orders", response_model=list[Order])
 async def admin_orders(
     status: Literal["pending_approval", "confirmed", "cancelled"] | None = Query(default=None),
-    payment_method: Literal["qr", "cod"] | None = Query(default=None),
+    payment_method: Literal["qr", "razorpay", "cod"] | None = Query(default=None),
     date_from: date | None = Query(default=None),
     date_to: date | None = Query(default=None),
     _: dict = Depends(require_admin),
