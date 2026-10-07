@@ -11,7 +11,7 @@ TypeScript** frontend. Frontend requests use a typed fetch layer over `/api`.
 ## Layout
 
 ```
-  Micro-Might/
+  /app/
   backend/   FastAPI + motor (async MongoDB) + Pydantic v2 — /root/.venv/bin/python
   frontend/  Vite + React 19 + Tailwind v4 + shadcn/ui (TypeScript strict)
   tests/     Playwright e2e workspace (pre-scaffolded)
@@ -32,14 +32,14 @@ cd frontend && yarn dev                                                # http://
 Every backend route lives under `/api` (the backend mounts one
 `APIRouter(prefix="/api")`), and the frontend dev server
 (`frontend/vite.config.ts`) proxies `/api/*` to `http://localhost:8001`. So
-frontend code always calls a **relative** path — `apiGet("/inventory")` →
-`/api/inventory` — and never an absolute backend URL. The same code works in dev
+frontend code always calls a **relative** path — `apiGet("/auth/session")` →
+`/api/auth/session` — and never an absolute backend URL. The same code works in dev
 (via the Vite proxy) and in production (once both are served behind a single
 origin).
 
 The live API root is `/api/`. Customer endpoints are under `/api/auth`, orders
-under `/api/orders`, and administration under `/api/admin`. This app does not
-implement the starter template's `/api/status` route.
+under `/api/orders`, and administration under `/api/admin`. There is no
+`/api/status` endpoint in this storefront.
 
 ## Store rules
 
@@ -63,30 +63,20 @@ implement the starter template's `/api/status` route.
   pincode is entered; the API enforces the same rule.
 - Customer payment instructions live at `/payment`; checkout uses the gateway
   readiness endpoint to keep unavailable Razorpay options disabled.
-- The historic PhonePe QR remains available to admins for existing orders, but
-  the API rejects new QR orders; new customer checkout offers Razorpay or COD.
+- Admin order history and filters distinguish Razorpay, COD, and historic
+  PhonePe QR orders. New checkout API requests accept only verified Razorpay
+  payments or COD; QR cannot create a new order, even by bypassing the frontend.
 - For an internet deployment, serve the frontend and `/api` on the same HTTPS
   origin, set production MongoDB and admin credentials, configure Razorpay's
   live keys in its dashboard, and point the chosen `.co` domain's
   DNS at the hosting provider. Domain registration, hosting, and live gateway
   activation require accounts and credentials not stored in this repository.
 
-## Customer account and data
-
-- `/login` supports account creation and sign-in. Customer profiles, password
-  hashes, saved delivery addresses, and session records are stored in MongoDB;
-  passwords are never returned by the API.
-- Authentication uses server-set httpOnly cookies. The browser does not persist
-  session tokens in local storage. `/account` shows stored orders and lets a
-  signed-in customer update a saved address.
-- Guest checkout remains available. Orders store customer contact and delivery
-  details even when no account is used. Account-owned orders are associated with
-  the authenticated customer and fetched from `/api/orders/mine`.
-
 ## Backend
 
-FastAPI, async throughout. `python` is the app venv interpreter
-(`/root/.venv/bin/python`); backend deps are pip-installed from
+FastAPI, async throughout. Use the app venv interpreter at
+`/root/.venv/bin/python`; the shell's bare `python` may not resolve to that
+environment. Backend deps are installed from
 `backend/requirements.txt`.
 
 - **Entry point**: `backend/server.py` — creates `app = FastAPI()`, creates
@@ -94,22 +84,22 @@ FastAPI, async throughout. `python` is the app venv interpreter
   and calls `app.include_router(api_router)` at the bottom. CORS middleware is
   added from `CORS_ORIGINS`. Never hang a route directly off `app` — it would
   land outside `/api` and the Vite proxy would not reach it.
-- **Routes and models**: `backend/routers/` has separate auth, orders, and admin
-  routers; request and response models live in `backend/models/`. Routers are
-  mounted under `/api` by `server.py`. Keep new routes async, await Mongo calls,
-  and use Pydantic models for request and response validation.
+- **Route organization**: `backend/server.py` mounts routers from
+  `backend/routers/`; Pydantic request/response models live in
+  `backend/models/`. Customer auth, orders, inventory, payments, and admin
+  routes are mounted beneath `/api`. Invalid request bodies receive FastAPI's
+  `422` response with a `{"detail": [...]}` body.
 - **MongoDB**: import the shared handle — `from lib.db import client, db`
   (`backend/lib/db.py` self-loads `.env` before reading env). Use it from
   `server.py`, every router, and standalone scripts like `seed.py`; never
   construct another `AsyncIOMotorClient`. Collections are attributes:
-  `await db.orders.insert_one(...)`, `await db.orders.find().to_list(1000)`.
+  `await db.users.insert_one(...)`, `await db.orders.find().to_list(1000)`.
   Motor connects lazily, so importing `server` never blocks on Mongo. `pymongo`
   is installed too if you need a sync client in a script.
-- **Ids**: application documents use a string `id` (`uuid4`) field, not Mongo's
-  `ObjectId`, which is not JSON-serializable.
+- **Ids**: documents use a string `id` (`uuid4`) field, not Mongo's `ObjectId`
+  — `ObjectId` is not JSON-serializable and leaks into response bodies.
 - **Config**: `backend/.env` — `MONGO_URL` (connection string), `DB_NAME`
-  (database name), `CORS_ORIGINS`, and Razorpay's server-only `RAZORPAY_KEY_ID`
-  and `RAZORPAY_KEY_SECRET`. `server.py` loads it with `python-dotenv`
+  (database name), `CORS_ORIGINS`. `server.py` loads it with `python-dotenv`
   above its local imports, and `lib/db.py` self-loads it so standalone scripts
   inherit it too. The pod runs `mongod` locally, so `MONGO_URL` points at
   `localhost`. Add new secrets/config here; read them with `os.environ`.
@@ -127,7 +117,8 @@ FastAPI, async throughout. `python` is the app venv interpreter
   `tsconfig.app.json`/`tsconfig.json` and `vite.config.ts`.
 - `react-router-dom` and `motion` are preinstalled — don't re-add them. `src/App.tsx`
   is the `<Routes>` table and nothing else; screens live in `src/pages/*.tsx` and are
-  imported as `@/pages/<Name>`. Add
+  imported as `@/pages/<Name>`. Current routes include product browsing, cart,
+  checkout, login/signup, customer account, payment information, and admin tools. Add
   a `<Route>` for every page you write, in the same edit that creates the page — a
   page with no route is unreachable, and any URL without a matching `<Route>` renders a
   **blank page** — `<Routes>` matches nothing and mounts nothing.
@@ -141,10 +132,9 @@ FastAPI, async throughout. `python` is the app venv interpreter
   yourself as a TS interface mirroring the endpoint's Pydantic model, and keeping
   the two in sync is a manual discipline. When you change a Pydantic model,
   change its TS interface in the same edit.
-- `src/pages/` contains storefront, product, login, account, checkout, payment,
-  and admin screens. Login creates optional customer accounts; checkout also works
-  for guests. `apiGet<T>` does not validate response bodies at runtime, so keep
-  frontend interfaces aligned with the backend's Pydantic models.
+- Customer/account, inventory, orders, and payment readiness use TanStack Query.
+  Keep the main page shell available when optional API data is unavailable; do not
+  represent unavailable Razorpay configuration as an active payment option.
 
 ## TypeScript
 
@@ -158,21 +148,6 @@ cd frontend && yarn typecheck
 — plain `tsc --noEmit` run from `frontend/` checks ZERO files (root tsconfig uses
 project references with `"files": []`) and exits 0 even with type errors. Always
 use `-b` for the frontend. Lint with `cd frontend && yarn lint` (oxlint).
-
-## Data fetching
-
-TanStack Query is wired: `QueryClientProvider` in `src/main.tsx`, `useQuery` demo
-in `src/pages/Home.tsx` (see above). Use `useQuery`/`useMutation`, not
-fetch-in-`useEffect`.
-
-## Completion gate (tier 1)
-
-Before a release, verify the `/api/` response and Razorpay readiness endpoint,
-check a negative COD order from outside Bengaluru, run `cd frontend && yarn
-typecheck`, and use Playwright for the customer journey. A live Razorpay payment
-requires configured test/live credentials and cannot be completed in an
-unconfigured environment.
-
 
 ## Testing
 
@@ -201,16 +176,24 @@ app-specific fixtures below the marker; do not re-create the file.
 `tests/e2e/`. Do NOT re-create the config/helpers or install/upgrade playwright —
 matching Chromium browsers live at `/pw-browsers`.
 
-The backend lane is pytest: this template's backend is Python, so `vitest` does
-not apply to it.
+Backend specs use pytest; browser journey coverage uses Playwright.
+
+Run the browser suite from the pre-scaffolded Playwright workspace:
+
+```bash
+cd /app/tests && PLAYWRIGHT_BROWSERS_PATH=/pw-browsers yarn playwright test
+```
+
+The customer journey runs at desktop and mobile viewports and covers signup,
+saved-address persistence, Bengaluru-only COD eligibility, and order placement.
 
 ## Pod conventions
 
 This template runs under supervisord in the Emergent agent pod — supersedes any
 local-run instructions above.
 
-- Backend, frontend, and `mongod` are each a supervisor program. After code or
-  config changes, restart and wait for readiness:
+- Backend, frontend, and `mongod` are supervisor programs. Source changes
+  hot-reload; restart after environment, dependency, or Vite configuration changes:
 
   ```bash
   sudo supervisorctl restart frontend backend

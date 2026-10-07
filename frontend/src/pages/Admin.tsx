@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Boxes, CalendarDays, CheckCircle2, ImagePlus, LockKeyhole, LogOut, PackageCheck, Save, ShieldPlus, UploadCloud, UsersRound } from "lucide-react";
+import { CalendarDays, CheckCircle2, ImagePlus, LockKeyhole, LogOut, PackageCheck, Save, ShieldPlus, UploadCloud, UsersRound } from "lucide-react";
 import { PageIntro, SiteLayout } from "@/components/SiteShell";
 import { apiGet, apiPatch, apiPost, apiPut } from "@/lib/api";
 import { beginSession, endSession, useSession } from "@/lib/session";

@@ -59,7 +59,7 @@ def test_invalid_product_slug_rejected(client):
         "delivery_address": "77 Tscheck Pricing Lane, Gottigere",
         "pincode": "560083",
         "estimated_distance_km": 2,
-        "payment_method": "cod",
+        "payment_method": "qr",
         "payment_reference": None,
         "notes": None,
         "items": [
@@ -115,7 +115,7 @@ def test_razorpay_config_reports_readiness_without_exposing_secrets(client):
     assert "key_secret" not in response.json()
 
 
-def test_legacy_qr_payment_is_not_available_for_new_orders(client):
+def test_legacy_qr_is_rejected_for_new_orders(client):
     payload = {
         "customer_name": "Tscheck Legacy QR",
         "customer_email": GUEST_EMAIL,

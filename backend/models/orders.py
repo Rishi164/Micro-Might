@@ -6,7 +6,8 @@ from pydantic import BaseModel, EmailStr, Field
 
 OrderPlan = Literal["regular", "gyoc"]
 OrderWeight = Literal["50g", "100g"]
-PaymentMethod = Literal["qr", "razorpay", "cod"]
+PaymentMethod = Literal["razorpay", "cod"]
+OrderPaymentMethod = Literal["qr", "razorpay", "cod"]
 OrderStatus = Literal["pending_approval", "confirmed", "cancelled"]
 
 
@@ -26,7 +27,7 @@ class OrderCreate(BaseModel):
     estimated_distance_km: float = Field(ge=0, le=100)
     preferred_delivery_date: date
     save_address: bool = False
-    payment_method: Literal["razorpay", "cod"]
+    payment_method: PaymentMethod
     payment_reference: str | None = Field(default=None, max_length=100)
     notes: str | None = Field(default=None, max_length=500)
     items: list[CartItemRequest] = Field(min_length=1, max_length=30)
@@ -73,7 +74,7 @@ class Order(BaseModel):
     preferred_delivery_date: date | None = None
     approved_harvest_date: date | None = None
     approved_delivery_date: date | None = None
-    payment_method: PaymentMethod
+    payment_method: OrderPaymentMethod
     payment_reference: str | None = None
     payment_status: str
     status: OrderStatus
